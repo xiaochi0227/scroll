@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>test</title>
+
+  <script src="jquery.min.js"></script>
+  <style>
+    *{
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+    li{
+      height: 30px;
+      line-height: 30px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" style="overflow:hidden;height:30px;width:300px;border:1px solid red;">
+    <div id="container" style="padding:0;">
+      <ul style="border: 1px solid green;" id="container-inner">
+        <li>test1</li><!-- 
+        <li>test2</li>
+        <li>test3</li>
+        <li>test4</li>
+        <li>test5</li> -->
+      </ul>
+    </div>
+  </div>
+  <script type="text/javascript">
+
+    /**
+     * 整体逻辑：
+     * 页面初始化的时候将文字第一行复制补充到最后一行之后
+     * 外面一个定时器控制 i 进而去计算需要滚动的高度
+     * 里面定时器则通过传入需要滚动的最小高度对比当前container的marginTop的大小
+     * 如果当前marginTop大于传入的top则marginTop往上跑1px
+     * 当两值相等不在进行滚动
+     * 当滚动到最后一个的时候设置marginTop为0 便于里面定时器计算
+     *
+     * 把最外层overflow去掉则可以清晰看到。当滚动到最后一条的时候 div从头开始。
+     *
+     *
+     * 注：此案例如果只有一行不进行滚动
+     */
+
+    var _top = 0;
+    var i = 0
+    var _element = $('#container')
+    var _li = _element.find('li')
+    var _height = _li.eq(0).height()
+    var len = _li.length
+    //如果有两条公告则拷贝第一条追加到公告列表最后
+    if(len>1){
+      $('#container-inner').append(_li.eq(0).clone())
+    }
+    var scroll = function(){
+      //如果滚动到最后一条则设置div marginTop 0 
+      if(i == len){
+        i = 0;
+        _element.css('marginTop',0)
+      }
+      i++;
+      //实现滚动效果
+      scrollTop(_top-_height*i)
+      setTimeout(scroll,5000)
+    }
+    /**
+     * 当前container的marginTop如果小于设置的最终top则top往上来一个
+     */
+    var scrollTop = function(top){
+      var scrollFun = function(){
+        var mtop = parseInt(_element.css('marginTop') || 0)
+        if(mtop>top){
+          mtop = mtop-1
+        }else{
+          mtop = top
+        }
+        _element.css('marginTop',mtop)
+        if(mtop!=top){
+          setTimeout(scrollFun,10)
+        }
+      }
+      setTimeout(scrollFun,10)
+    }
+    if(len>1){
+      setTimeout(scroll,5000) 
+    }
+  </script>
+</body>
+</html>
+
